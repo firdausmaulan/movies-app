@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Movies App</string>
+    <string name="popular">Popular</string>
+    <string name="top_rated">Top Rated</string>
+    <string name="favourite">Favourite</string>
+    <string name="unable_to_connect">Unable to connect</string>
+    <string name="votes">votes</string>
+    <string name="overview">Overview</string>
+    <string name="trailers">Trailers</string>
+</resources>
