@@ -1,13 +1,13 @@
-package com.movies.app.movieDetail.model
+package com.movies.app.model
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-class SpokenLanguage {
+class ProductionCountry {
 
-    @SerializedName("iso_639_1")
+    @SerializedName("iso_3166_1")
     @Expose
-    var iso6391: String? = null
+    var iso31661: String? = null
     @SerializedName("name")
     @Expose
     var name: String? = null

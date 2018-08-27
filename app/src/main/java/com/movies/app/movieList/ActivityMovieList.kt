@@ -6,33 +6,26 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.view.ViewPager
-import android.support.v7.app.AppCompatActivity
-import com.android.volley.RequestQueue
-import com.android.volley.toolbox.Volley
 import com.movies.app.R
-import com.movies.app.database.DatabaseManager
-import com.movies.app.movieList.model.ModelGenre
+import com.movies.app.model.ModelGenre
+import com.movies.app.model.ModelMovie
+import com.movies.app.mvp.BaseMvpActivity
 import kotlinx.android.synthetic.main.activity_movie_list.*
-import org.jetbrains.anko.doAsync
-import org.json.JSONArray
-import org.json.JSONException
 
 
-class ActivityMovieList : AppCompatActivity(), ViewMovieList {
+class ActivityMovieList : BaseMvpActivity<ContractMovieList.View,
+        ContractMovieList.Presenter>(), ContractMovieList.View{
 
-    private var mPresenter: PresenterMovieList? = null
-    private var mRequestQueue: RequestQueue? = null
+    override var mPresenter: ContractMovieList.Presenter = PresenterMovieList()
     private var mVpAdapter: ViewPagerAdapter? = null
-    var mListGenre = ArrayList<ModelGenre>()
+    private var mListGenre = ArrayList<ModelGenre>()
+    private var mListFavouriteID = ArrayList<Int>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_movie_list)
-        doAsync {
-            mRequestQueue = Volley.newRequestQueue(this@ActivityMovieList)
-            mPresenter = PresenterMovieList(this@ActivityMovieList)
-            mPresenter?.getGenreName(mRequestQueue)
-        }
+        mPresenter.loadGenre()
+        mPresenter.loadListFavouriteID()
     }
 
     private fun setupViewPager(viewPager: ViewPager) {
@@ -66,52 +59,56 @@ class ActivityMovieList : AppCompatActivity(), ViewMovieList {
         }
     }
 
-    // Request
-    override fun onSuccessGetGenre(response: JSONArray?) {
-        val size = response?.length() ?: 0
-        for (i in 0 until size) {
-            try {
-                val jsonGenre = response?.getJSONObject(i)
-                val genre = ModelGenre()
-                genre.id = jsonGenre?.getInt("id")
-                genre.name = jsonGenre?.getString("name")
-                mListGenre.add(genre)
-            } catch (e: JSONException) {
-                e.printStackTrace()
-            }
-        }
+    override fun onFragmentPopularLoad(lastIndex: Int?) {
+        mPresenter.loadPopularMovies(mListGenre, mListFavouriteID, lastIndex)
+    }
 
+    override fun onFragmentTopRatedLoad(lastIndex: Int?) {
+        mPresenter.loadTopRatedMovies(mListGenre, mListFavouriteID, lastIndex)
+    }
+
+    override fun onFragmentFavouriteLoad() {
+        mPresenter.loadFavouriteMovies(mListGenre, mListFavouriteID)
+    }
+
+    override fun onClickFavourite(model: ModelMovie?) {
+        mPresenter.setFavouriteMovie(model)
+    }
+
+    override fun setFavouriteIcon(movieId: Int?, isFavourite: Boolean?) {
+        mPresenter.loadListFavouriteID()
+        (mVpAdapter?.getItem(0) as FragmentPopular).setFavouriteIcon(movieId, isFavourite)
+        (mVpAdapter?.getItem(1) as FragmentTopRated).setFavouriteIcon(movieId, isFavourite)
+        (mVpAdapter?.getItem(2) as FragmentFavourite).setFavouriteIcon(movieId, isFavourite)
+    }
+
+    override fun setListGenre(listGenre: ArrayList<ModelGenre>) {
+        mListGenre = listGenre
         setupViewPager(vpMovieList)
         tlMovieList.setupWithViewPager(vpMovieList)
     }
 
-    override fun onRequestPopular(lastIndex: Int?) {
-        mPresenter?.getPopularMovies(mRequestQueue, lastIndex)
+    override fun setListFavouritesID(listFavouriteID: ArrayList<Int>) {
+        mListFavouriteID = listFavouriteID
     }
 
-    override fun onRequestTopRated(lastIndex: Int?) {
-        mPresenter?.getTopRatedMovies(mRequestQueue, lastIndex)
+    override fun showPopularMovies(listMovie: ArrayList<ModelMovie>) {
+        (mVpAdapter?.getItem(0) as FragmentPopular).showPopularMovies(listMovie)
     }
 
-    // Response
-    override fun onSuccessGetPopular(response: String?) {
-        (mVpAdapter?.getItem(0) as FragmentPopular).successGetPopular(response)
+
+    override fun showTopRatedMovies(listMovie: ArrayList<ModelMovie>) {
+        (mVpAdapter?.getItem(1) as FragmentTopRated).showTopRatedMovies(listMovie)
     }
 
-    override fun onSuccessGetTopRated(response: String?) {
-        (mVpAdapter?.getItem(1) as FragmentTopRated).successGetTopRated(response)
+    override fun showFavouriteMovies(listMovie: ArrayList<ModelMovie>) {
+        (mVpAdapter?.getItem(2) as FragmentFavourite).showFavouriteMovies(listMovie)
     }
 
     // Error
-    override fun onError(message: String?) {
+    override fun showError(error: String?) {
         Snackbar.make(vpMovieList,
-                message.toString(),
-                Snackbar.LENGTH_LONG).show()
-    }
-
-    override fun onError() {
-        Snackbar.make(vpMovieList,
-                getString(R.string.unable_to_connect),
+                error.toString(),
                 Snackbar.LENGTH_LONG).show()
     }
 }

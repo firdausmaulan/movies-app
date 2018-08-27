@@ -4,8 +4,10 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.movies.app.util.AppLog
 
-class DatabaseManager(context: Context?) : SQLiteOpenHelper(context, "db_movie_app", null, 1) {
+class DatabaseManager(context: Context?) :
+        SQLiteOpenHelper(context, "db_movie_app", null, 1) {
 
     private val T_FAVOURITE = "t_favourite"
 
@@ -33,23 +35,26 @@ class DatabaseManager(context: Context?) : SQLiteOpenHelper(context, "db_movie_a
         db.close()
     }
 
-    fun getListFavourite(): ArrayList<String> {
-        val list = ArrayList<String>()
-        val db = this.readableDatabase
+    fun getJsonFavourite(): String {
+        var json = "["
+        val db = readableDatabase
         val c = db.rawQuery("SELECT json_data FROM $T_FAVOURITE", arrayOf())
         c.moveToFirst()
         while (!c.isAfterLast) {
-            list.add(c.getString(0).toString())
+            json = json + c.getString(0) + ","
             c.moveToNext()
         }
+        if (json.contains(",".toRegex())) json = json.substring(0, json.length - 1)
+        json = "$json]"
         c.close()
         db.close()
-        return list
+        AppLog.d(json)
+        return json
     }
 
-    fun getListFavouriteId(): ArrayList<Int> {
+    fun getListFavouriteID(): ArrayList<Int> {
         val list = ArrayList<Int>()
-        val db = this.readableDatabase
+        val db = readableDatabase
         val c = db.rawQuery("SELECT id FROM $T_FAVOURITE", arrayOf())
         c.moveToFirst()
         while (!c.isAfterLast) {
@@ -59,5 +64,14 @@ class DatabaseManager(context: Context?) : SQLiteOpenHelper(context, "db_movie_a
         c.close()
         db.close()
         return list
+    }
+
+    fun isFavourite(movieId: Int?): Boolean {
+        val db = readableDatabase
+        val c = db.rawQuery("SELECT id FROM $T_FAVOURITE WHERE id=$movieId", arrayOf())
+        val isFavourite = c.count > 0
+        c.close()
+        db.close()
+        return isFavourite
     }
 }

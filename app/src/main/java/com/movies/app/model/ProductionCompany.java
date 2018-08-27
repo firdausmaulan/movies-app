@@ -1,5 +1,5 @@
 
-package com.movies.app.movieDetail.model;
+package com.movies.app.model;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

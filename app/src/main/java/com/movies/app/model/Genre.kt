@@ -1,13 +1,13 @@
-package com.movies.app.movieDetail.model
+package com.movies.app.model
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-class ProductionCountry {
+class Genre {
 
-    @SerializedName("iso_3166_1")
+    @SerializedName("id")
     @Expose
-    var iso31661: String? = null
+    var id: Int? = null
     @SerializedName("name")
     @Expose
     var name: String? = null

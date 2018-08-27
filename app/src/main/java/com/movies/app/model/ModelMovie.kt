@@ -1,4 +1,4 @@
-package com.movies.app.movieList.model
+package com.movies.app.model
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
@@ -50,5 +50,7 @@ class ModelMovie {
     @SerializedName("release_date")
     @Expose
     var releaseDate: String? = null
-
+    @SerializedName("is_favourite")
+    @Expose
+    var isFavourite: Boolean? = null
 }

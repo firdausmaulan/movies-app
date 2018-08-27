@@ -1,44 +1,71 @@
 package com.movies.app.movieDetail
 
-import com.android.volley.Request
-import com.android.volley.RequestQueue
-import com.android.volley.Response
-import com.android.volley.toolbox.JsonObjectRequest
+import com.google.gson.Gson
+import com.movies.app.R
+import com.movies.app.database.DatabaseManager
+import com.movies.app.model.ModelDetailMovie
+import com.movies.app.model.ModelTrailer
+import com.movies.app.mvp.BaseMvpPresenterImpl
+import com.androidnetworking.error.ANError
+import com.androidnetworking.AndroidNetworking
+import com.androidnetworking.interfaces.JSONObjectRequestListener
 import com.movies.app.BuildConfig
+import com.movies.app.util.API_URL
+import org.json.JSONObject
 
-class PresenterMovieDetail(private val view: ViewMovieDetail) {
 
-    fun getRequestDetail(requestQueue: RequestQueue?, id: Int?) {
-        val url = BuildConfig.BASE_URL + "movie/$id?api_key=${BuildConfig.API_KEY}"
-        val request = JsonObjectRequest(Request.Method.GET, url, null,
-                Response.Listener { response ->
-                    if (response.has("id")) {
-                        view.onSuccessGetDetail(response)
-                    } else {
-                        view.onError()
+class PresenterMovieDetail : BaseMvpPresenterImpl<ContractMovieDetail.View>(),
+        ContractMovieDetail.Presenter {
+
+    override fun loadMovieDetail(movieId: Int?) {
+        AndroidNetworking.get(API_URL.DETAIL)
+                .addPathParameter("id", movieId.toString())
+                .addQueryParameter("api_key", BuildConfig.API_KEY)
+                .build()
+                .getAsJSONObject(object : JSONObjectRequestListener {
+                    override fun onResponse(response: JSONObject) {
+                        if (response.has("id")) {
+                            val movie = Gson().fromJson<ModelDetailMovie>(
+                                    response.toString(),
+                                    ModelDetailMovie::class.java
+                            )
+                            mView?.showMovieDetail(movie)
+                        } else {
+                            mView?.showError(R.string.unable_to_connect)
+                        }
                     }
-                },
-                Response.ErrorListener { error ->
-                    view.onError()
-                }
-        )
-        requestQueue?.add(request)
+
+                    override fun onError(error: ANError) {
+                        mView?.showError(R.string.unable_to_connect)
+                    }
+                })
     }
 
-    fun getTrailerVideo(requestQueue: RequestQueue?, id: Int?) {
-        val url = BuildConfig.BASE_URL + "movie/$id/videos?api_key=${BuildConfig.API_KEY}"
-        val request = JsonObjectRequest(Request.Method.GET, url, null,
-                Response.Listener { response ->
-                    if (response.has("results")) {
-                        view.onSuccessGetTrailerVideo(response)
-                    } else {
-                        view.onError()
+    override fun loadMovieTrailer(movieId: Int?) {
+        AndroidNetworking.get(API_URL.TRAILER)
+                .addPathParameter("id", movieId.toString())
+                .addQueryParameter("api_key", BuildConfig.API_KEY)
+                .build()
+                .getAsJSONObject(object : JSONObjectRequestListener {
+                    override fun onResponse(response: JSONObject) {
+                        if (response.has("results")) {
+                            val trailer = Gson().fromJson<ModelTrailer>(
+                                    response.toString(), ModelTrailer::class.java
+                            )
+                            mView?.showMovieTrailer(trailer)
+                        } else {
+                            mView?.showError(R.string.unable_to_connect)
+                        }
                     }
-                },
-                Response.ErrorListener { error ->
-                    view.onError()
-                }
-        )
-        requestQueue?.add(request)
+
+                    override fun onError(error: ANError) {
+                        mView?.showError(R.string.unable_to_connect)
+                    }
+                })
+    }
+
+    override fun loadFavourite(movieId: Int?) {
+        val mDatabaseManager = DatabaseManager(mView?.getContext())
+        mView?.showFavourite(mDatabaseManager.isFavourite(movieId))
     }
 }
