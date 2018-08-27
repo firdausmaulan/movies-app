@@ -54,7 +54,7 @@ class FragmentTopRated : Fragment() {
         mView?.srlMovieList?.isRefreshing = true
         mLastIndex = 1
         mMovieList.clear()
-        mViewMovieList?.onFragmentTopRatedLoad(mLastIndex)
+        mViewMovieList?.onSwipeToRefreshTopRated()
     }
 
     private fun setRecycleView() {
@@ -94,7 +94,7 @@ class FragmentTopRated : Fragment() {
     private fun loadMore() {
         mView?.srlMovieList?.isRefreshing = true
         mAllowedToRequest = false
-        mViewMovieList?.onFragmentTopRatedLoad(mLastIndex)
+        mViewMovieList?.onScrollToLastIndexTopRated(mLastIndex)
     }
 
     fun showTopRatedMovies(listMovie: ArrayList<ModelMovie>) {

@@ -59,15 +59,23 @@ class ActivityMovieList : BaseMvpActivity<ContractMovieList.View,
         }
     }
 
-    override fun onFragmentPopularLoad(lastIndex: Int?) {
+    override fun onSwipeToRefreshPopular() {
+        mPresenter.loadPopularMovies(mListGenre, mListFavouriteID, 1)
+    }
+
+    override fun onScrollToLastIndexPopular(lastIndex: Int?) {
         mPresenter.loadPopularMovies(mListGenre, mListFavouriteID, lastIndex)
     }
 
-    override fun onFragmentTopRatedLoad(lastIndex: Int?) {
+    override fun onSwipeToRefreshTopRated() {
+        mPresenter.loadTopRatedMovies(mListGenre, mListFavouriteID, 1)
+    }
+
+    override fun onScrollToLastIndexTopRated(lastIndex: Int?) {
         mPresenter.loadTopRatedMovies(mListGenre, mListFavouriteID, lastIndex)
     }
 
-    override fun onFragmentFavouriteLoad() {
+    override fun onSwipeToRefreshFavourite() {
         mPresenter.loadFavouriteMovies(mListGenre, mListFavouriteID)
     }
 

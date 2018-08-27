@@ -54,7 +54,7 @@ class FragmentPopular : Fragment() {
         mView?.srlMovieList?.isRefreshing = true
         mLastIndex = 1
         mMovieList.clear()
-        mViewMovieList?.onFragmentPopularLoad(mLastIndex)
+        mViewMovieList?.onSwipeToRefreshPopular()
     }
 
     private fun setRecycleView() {
@@ -94,7 +94,7 @@ class FragmentPopular : Fragment() {
     private fun loadMore() {
         mView?.srlMovieList?.isRefreshing = true
         mAllowedToRequest = false
-        mViewMovieList?.onFragmentPopularLoad(mLastIndex)
+        mViewMovieList?.onScrollToLastIndexPopular(mLastIndex)
     }
 
     fun showPopularMovies(listMovie: ArrayList<ModelMovie>) {

@@ -51,7 +51,7 @@ class FragmentFavourite : Fragment() {
     private fun onRefresh() {
         mView?.srlMovieList?.isRefreshing = true
         mMovieList.clear()
-        mViewMovieList?.onFragmentFavouriteLoad()
+        mViewMovieList?.onSwipeToRefreshFavourite()
     }
 
     private fun setRecycleView() {

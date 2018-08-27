@@ -12,6 +12,8 @@ import com.movies.app.model.ModelTrailer
 import com.movies.app.mvp.BaseMvpActivity
 import com.movies.app.util.loadImage
 import kotlinx.android.synthetic.main.activity_movie_detail.*
+import android.support.design.widget.AppBarLayout
+
 
 class ActivityMovieDetail : BaseMvpActivity<ContractMovieDetail.View,
         ContractMovieDetail.Presenter>(), ContractMovieDetail.View {
@@ -44,6 +46,25 @@ class ActivityMovieDetail : BaseMvpActivity<ContractMovieDetail.View,
         tvDate.text = movie?.releaseDate
         tvLanguage.text = movie?.originalLanguage
         tvOverview.text = movie?.overview
+        setToolbarTitle(movie?.title)
+    }
+
+    private fun setToolbarTitle(title: String?) {
+        appBar.addOnOffsetChangedListener(object : AppBarLayout.OnOffsetChangedListener {
+            var isShow = true
+            var scrollRange = -1
+
+            override fun onOffsetChanged(appBarLayout: AppBarLayout, verticalOffset: Int) {
+                if (scrollRange == -1) {
+                    scrollRange = appBarLayout.totalScrollRange
+                }
+                if (scrollRange + verticalOffset == 0) {
+                    collapsToolbar.title = title
+                } else if (isShow) {
+                    collapsToolbar.title = ""
+                }
+            }
+        })
     }
 
     override fun showMovieTrailer(trailer: ModelTrailer?) {

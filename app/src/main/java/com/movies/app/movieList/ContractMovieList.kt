@@ -12,11 +12,15 @@ interface ContractMovieList {
 
         fun setListFavouritesID(listFavouriteID: ArrayList<Int>)
 
-        fun onFragmentPopularLoad(lastIndex: Int?)
+        fun onSwipeToRefreshPopular()
 
-        fun onFragmentTopRatedLoad(lastIndex: Int?)
+        fun onSwipeToRefreshTopRated()
 
-        fun onFragmentFavouriteLoad()
+        fun onSwipeToRefreshFavourite()
+
+        fun onScrollToLastIndexPopular(lastIndex: Int?)
+
+        fun onScrollToLastIndexTopRated(lastIndex: Int?)
 
         fun showPopularMovies(listMovie: ArrayList<ModelMovie>)
 
