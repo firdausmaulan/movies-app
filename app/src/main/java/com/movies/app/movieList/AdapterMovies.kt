@@ -39,7 +39,7 @@ class AdapterMovies(val context: Context?,
         }
         holder.lytParent?.setOnClickListener {
             holder.ivMovie?.let { imageView ->
-                clickListener?.onItemClick(position, imageView, mMovieList[position].id)
+                clickListener?.onItemClick(position, imageView, mMovieList[position])
             }
         }
     }
@@ -59,7 +59,7 @@ class AdapterMovies(val context: Context?,
     }
 
     interface ClickListener {
-        fun onItemClick(position: Int, v: View, id: Int?)
+        fun onItemClick(position: Int, v: View, model: ModelMovie?)
         fun onFavouriteClick(position: Int, v: View, model: ModelMovie?)
     }
 }

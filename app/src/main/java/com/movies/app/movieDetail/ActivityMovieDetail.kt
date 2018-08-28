@@ -1,5 +1,7 @@
 package com.movies.app.movieDetail
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.view.MenuItem
@@ -13,13 +15,16 @@ import com.movies.app.mvp.BaseMvpActivity
 import com.movies.app.util.loadImage
 import kotlinx.android.synthetic.main.activity_movie_detail.*
 import android.support.design.widget.AppBarLayout
+import com.movies.app.model.ModelMovie
+import com.movies.app.util.Constants
 
 
 class ActivityMovieDetail : BaseMvpActivity<ContractMovieDetail.View,
         ContractMovieDetail.Presenter>(), ContractMovieDetail.View {
 
     override var mPresenter: ContractMovieDetail.Presenter = PresenterMovieDetail()
-    private var mMovieId: Int? = null
+    private var mMovie: ModelMovie? = null
+    private var isFavourite = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,14 +32,27 @@ class ActivityMovieDetail : BaseMvpActivity<ContractMovieDetail.View,
 
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        intent?.extras?.let { mMovieId = it.getInt("id") }
-        mPresenter.loadFavourite(mMovieId)
-        mPresenter.loadMovieDetail(mMovieId)
-        mPresenter.loadMovieTrailer(mMovieId)
+        intent?.extras?.let { mMovie = it.getSerializable(Constants.TAG_MODEL) as ModelMovie? }
+        mPresenter.loadFavourite(mMovie?.id)
+        mPresenter.loadMovieDetail(mMovie?.id)
+        mPresenter.loadMovieTrailer(mMovie?.id)
+
+        setAction()
+    }
+
+    private fun setAction() {
+        ivFavourite.setOnClickListener {
+            mPresenter.setFavouriteMovie(mMovie)
+        }
     }
 
     override fun showFavourite(isFavourite: Boolean) {
-        if (isFavourite) ivFavourite.setImageResource(R.drawable.ic_favorite)
+        this.isFavourite = isFavourite
+        if (isFavourite) {
+            ivFavourite.setImageResource(R.drawable.ic_favorite)
+        } else {
+            ivFavourite.setImageResource(R.drawable.ic_unfavorite)
+        }
     }
 
     override fun showMovieDetail(movie: ModelDetailMovie?) {
@@ -89,5 +107,14 @@ class ActivityMovieDetail : BaseMvpActivity<ContractMovieDetail.View,
             android.R.id.home -> onBackPressed()
         }
         return true
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val returnIntent = Intent()
+        returnIntent.putExtra(Constants.TAG_MOVIE_ID, mMovie?.id)
+        returnIntent.putExtra(Constants.TAG_IS_FAVOURITE, isFavourite)
+        setResult(Activity.RESULT_OK, returnIntent)
+        finish()
     }
 }

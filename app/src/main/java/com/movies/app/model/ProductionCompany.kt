@@ -4,19 +4,19 @@ import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
-class BelongsToCollection : Serializable {
+class ProductionCompany : Serializable {
 
     @SerializedName("id")
     @Expose
     var id: Int? = null
+    @SerializedName("logo_path")
+    @Expose
+    var logoPath: String? = null
     @SerializedName("name")
     @Expose
     var name: String? = null
-    @SerializedName("poster_path")
+    @SerializedName("origin_country")
     @Expose
-    var posterPath: String? = null
-    @SerializedName("backdrop_path")
-    @Expose
-    var backdropPath: String? = null
+    var originCountry: String? = null
 
 }

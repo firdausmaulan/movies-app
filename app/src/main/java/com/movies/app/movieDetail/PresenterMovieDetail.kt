@@ -10,6 +10,7 @@ import com.androidnetworking.error.ANError
 import com.androidnetworking.AndroidNetworking
 import com.androidnetworking.interfaces.JSONObjectRequestListener
 import com.movies.app.BuildConfig
+import com.movies.app.model.ModelMovie
 import com.movies.app.util.API_URL
 import org.json.JSONObject
 
@@ -67,5 +68,16 @@ class PresenterMovieDetail : BaseMvpPresenterImpl<ContractMovieDetail.View>(),
     override fun loadFavourite(movieId: Int?) {
         val mDatabaseManager = DatabaseManager(mView?.getContext())
         mView?.showFavourite(mDatabaseManager.isFavourite(movieId))
+    }
+
+    override fun setFavouriteMovie(model: ModelMovie?) {
+        val mDatabaseManager = DatabaseManager(mView?.getContext())
+        val isFavourite = mDatabaseManager.isFavourite(model?.id)
+        if (isFavourite) {
+            mDatabaseManager.removeFavourite(model?.id)
+        } else {
+            mDatabaseManager.addFavourite(model?.id, Gson().toJson(model).toString())
+        }
+        mView?.showFavourite(!isFavourite)
     }
 }

@@ -1,11 +1,13 @@
 package com.movies.app.movieList
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
 import android.support.v4.view.ViewCompat
 import android.support.v7.widget.GridLayoutManager
 import android.view.LayoutInflater
@@ -16,6 +18,7 @@ import com.movies.app.movieDetail.ActivityMovieDetail
 import com.movies.app.model.ModelMovie
 import kotlinx.android.synthetic.main.fragment_movie_list.view.*
 import android.support.v7.widget.RecyclerView
+import com.movies.app.util.Constants
 import com.movies.app.util.RecyclerUtil
 
 class FragmentPopular : Fragment() {
@@ -45,16 +48,16 @@ class FragmentPopular : Fragment() {
         val view = inflater.inflate(R.layout.fragment_movie_list, container, false)
         mView = view
         setRecycleView()
-        view.srlMovieList?.setOnRefreshListener { onRefresh() }
+        setSwipeRefreshLayout()
+        setAction()
         onRefresh()
         return view
     }
 
-    private fun onRefresh() {
-        mView?.srlMovieList?.isRefreshing = true
-        mLastIndex = 1
-        mMovieList.clear()
-        mViewMovieList?.onSwipeToRefreshPopular()
+    private fun setSwipeRefreshLayout() {
+        activity?.let { ContextCompat.getColor(it, R.color.colorAccent) }?.let {
+            mView?.srlMovieList?.setColorSchemeColors(it)
+        }
     }
 
     private fun setRecycleView() {
@@ -62,17 +65,24 @@ class FragmentPopular : Fragment() {
         mView?.rvMovieList?.layoutManager = glm
         mAdapterMovies = AdapterMovies(activity, mMovieList)
         mView?.rvMovieList?.adapter = mAdapterMovies
+    }
+
+    private fun setAction() {
+        mView?.srlMovieList?.setOnRefreshListener { onRefresh() }
+
         // handle event onItemClick and onClickFavourite
         mAdapterMovies?.setOnItemClickListener(object : AdapterMovies.ClickListener {
-            override fun onItemClick(position: Int, v: View, id: Int?) {
+            override fun onItemClick(position: Int, v: View, model: ModelMovie?) {
                 val intent = Intent(activity, ActivityMovieDetail::class.java)
-                intent.putExtra("id", id)
+                val bundle = Bundle()
+                bundle.putSerializable(Constants.TAG_MODEL, model)
+                intent.putExtras(bundle)
                 if (Build.VERSION.SDK_INT >= 21) {
                     val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                             activity as ActivityMovieList, v, ViewCompat.getTransitionName(v))
-                    startActivity(intent, options.toBundle())
+                    startActivityForResult(intent, Constants.REQUEST_CODE_DETAIL, options.toBundle())
                 } else {
-                    startActivity(intent)
+                    startActivityForResult(intent, Constants.REQUEST_CODE_DETAIL)
                 }
             }
 
@@ -84,11 +94,19 @@ class FragmentPopular : Fragment() {
         mView?.rvMovieList?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-                if (RecyclerUtil.isLoadMore(dy, glm, mAllowedToRequest)) {
+                val layoutManager = recyclerView?.layoutManager as GridLayoutManager
+                if (RecyclerUtil.isLoadMore(dy, layoutManager, mAllowedToRequest)) {
                     loadMore()
                 }
             }
         })
+    }
+
+    private fun onRefresh() {
+        mView?.srlMovieList?.isRefreshing = true
+        mLastIndex = 1
+        mMovieList.clear()
+        mViewMovieList?.onSwipeToRefreshPopular()
     }
 
     private fun loadMore() {
@@ -111,6 +129,17 @@ class FragmentPopular : Fragment() {
                 mMovieList[i].isFavourite = isFavourite
                 mAdapterMovies?.notifyItemChanged(i)
                 break
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == Constants.REQUEST_CODE_DETAIL) {
+                val movieId = data?.extras?.getInt(Constants.TAG_MOVIE_ID)
+                val isFavourite = data?.extras?.getBoolean(Constants.TAG_IS_FAVOURITE)
+                mViewMovieList?.setFavouriteIcon(movieId, isFavourite)
             }
         }
     }

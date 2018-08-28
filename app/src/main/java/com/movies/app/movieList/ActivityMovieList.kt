@@ -14,7 +14,7 @@ import kotlinx.android.synthetic.main.activity_movie_list.*
 
 
 class ActivityMovieList : BaseMvpActivity<ContractMovieList.View,
-        ContractMovieList.Presenter>(), ContractMovieList.View{
+        ContractMovieList.Presenter>(), ContractMovieList.View {
 
     override var mPresenter: ContractMovieList.Presenter = PresenterMovieList()
     private var mVpAdapter: ViewPagerAdapter? = null
