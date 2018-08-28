@@ -10,7 +10,6 @@ import com.movies.app.model.ModelMovie
 import com.movies.app.util.loadImage
 import kotlinx.android.synthetic.main.adapter_movie_list.view.*
 
-
 class AdapterMovies(val context: Context?,
                     private val mMovieList: ArrayList<ModelMovie>)
     : RecyclerView.Adapter<AdapterMovies.ViewHolder>() {

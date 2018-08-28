@@ -5,7 +5,7 @@ import com.movies.app.model.ModelMovie
 import com.movies.app.mvp.BaseMvpPresenter
 import com.movies.app.mvp.BaseMvpView
 
-interface ContractMovieList {
+object ContractMovieList {
 
     interface View : BaseMvpView {
         fun setListGenre(listGenre: ArrayList<ModelGenre>)
