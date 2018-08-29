@@ -110,11 +110,10 @@ class ActivityMovieDetail : BaseMvpActivity<ContractMovieDetail.View,
     }
 
     override fun onBackPressed() {
-        super.onBackPressed()
         val returnIntent = Intent()
         returnIntent.putExtra(Constants.TAG_MOVIE_ID, mMovie?.id)
         returnIntent.putExtra(Constants.TAG_IS_FAVOURITE, isFavourite)
         setResult(Activity.RESULT_OK, returnIntent)
-        finish()
+        super.onBackPressed()
     }
 }
