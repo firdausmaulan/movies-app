@@ -24,12 +24,12 @@ import kotlinx.android.synthetic.main.fragment_movie_list.view.*
 class FragmentTopRated : Fragment() {
 
     private var mMovieList: ArrayList<ModelMovie> = ArrayList()
-    private var mAdapterMovies: AdapterMovies? = null
+    private lateinit var mAdapterMovies: AdapterMovies
     private var mLastIndex = 1
     private var mAllowedToRequest = true
 
     private var mViewMovieList: ContractMovieList.View? = null
-    private var mView: View? = null
+    private lateinit var mView: View
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -56,22 +56,22 @@ class FragmentTopRated : Fragment() {
 
     private fun setSwipeRefreshLayout(){
         activity?.let { ContextCompat.getColor(it, R.color.colorAccent) }?.let {
-            mView?.srlMovieList?.setColorSchemeColors(it)
+            mView.srlMovieList?.setColorSchemeColors(it)
         }
     }
 
     private fun setRecycleView() {
         val glm = GridLayoutManager(activity, 2)
-        mView?.rvMovieList?.layoutManager = glm
+        mView.rvMovieList?.layoutManager = glm
         mAdapterMovies = AdapterMovies(activity, mMovieList)
-        mView?.rvMovieList?.adapter = mAdapterMovies
+        mView.rvMovieList?.adapter = mAdapterMovies
     }
 
     private fun setAction(){
-        mView?.srlMovieList?.setOnRefreshListener { onRefresh() }
+        mView.srlMovieList?.setOnRefreshListener { onRefresh() }
 
         // handle event onItemClick and onClickFavourite
-        mAdapterMovies?.setOnItemClickListener(object : AdapterMovies.ClickListener {
+        mAdapterMovies.setOnItemClickListener(object : AdapterMovies.ClickListener {
             override fun onItemClick(position: Int, v: View, model: ModelMovie?) {
                 val intent = Intent(activity, ActivityMovieDetail::class.java)
                 intent.putExtra(Constants.TAG_MODEL, model)
@@ -89,7 +89,7 @@ class FragmentTopRated : Fragment() {
             }
         })
         // read last recycle view item for load more
-        mView?.rvMovieList?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        mView.rvMovieList?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 val layoutManager = recyclerView?.layoutManager as GridLayoutManager
@@ -101,14 +101,14 @@ class FragmentTopRated : Fragment() {
     }
 
     private fun onRefresh() {
-        mView?.srlMovieList?.isRefreshing = true
+        mView.srlMovieList?.isRefreshing = true
         mLastIndex = 1
         mMovieList.clear()
         mViewMovieList?.onSwipeToRefreshTopRated()
     }
 
     private fun loadMore() {
-        mView?.srlMovieList?.isRefreshing = true
+        mView.srlMovieList?.isRefreshing = true
         mAllowedToRequest = false
         mViewMovieList?.onScrollToLastIndexTopRated(mLastIndex)
     }
@@ -116,8 +116,8 @@ class FragmentTopRated : Fragment() {
     fun showTopRatedMovies(listMovie: ArrayList<ModelMovie>) {
         mMovieList.addAll(listMovie)
         mLastIndex++
-        mView?.srlMovieList?.isRefreshing = false
-        mAdapterMovies?.notifyDataSetChanged()
+        mView.srlMovieList?.isRefreshing = false
+        mAdapterMovies.notifyDataSetChanged()
         mAllowedToRequest = true
     }
 
@@ -125,7 +125,7 @@ class FragmentTopRated : Fragment() {
         for (i in 0 until mMovieList.size) {
             if (mMovieList[i].id == movieId) {
                 mMovieList[i].isFavourite = isFavourite
-                mAdapterMovies?.notifyItemChanged(i)
+                mAdapterMovies.notifyItemChanged(i)
                 break
             }
         }

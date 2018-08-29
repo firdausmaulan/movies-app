@@ -23,12 +23,12 @@ import com.movies.app.util.Constants
 class FragmentFavourite : Fragment() {
 
     private var mMovieList: ArrayList<ModelMovie> = ArrayList()
-    private var mAdapterMovies: AdapterMovies? = null
+    private lateinit var mAdapterMovies: AdapterMovies
     private var mLastIndex = 1
     private var mAllowedToRequest = true
 
     private var mViewMovieList: ContractMovieList.View? = null
-    private var mView: View? = null
+    private lateinit var mView: View
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -52,24 +52,24 @@ class FragmentFavourite : Fragment() {
         return view
     }
 
-    private fun setSwipeRefreshLayout(){
+    private fun setSwipeRefreshLayout() {
         activity?.let { ContextCompat.getColor(it, R.color.colorAccent) }?.let {
-            mView?.srlMovieList?.setColorSchemeColors(it)
+            mView.srlMovieList?.setColorSchemeColors(it)
         }
     }
 
     private fun setRecycleView() {
         val glm = GridLayoutManager(activity, 2)
-        mView?.rvMovieList?.layoutManager = glm
+        mView.rvMovieList?.layoutManager = glm
         mAdapterMovies = AdapterMovies(activity, mMovieList)
-        mView?.rvMovieList?.adapter = mAdapterMovies
+        mView.rvMovieList?.adapter = mAdapterMovies
     }
 
-    private fun setAction(){
-        mView?.srlMovieList?.setOnRefreshListener { onRefresh() }
+    private fun setAction() {
+        mView.srlMovieList?.setOnRefreshListener { onRefresh() }
 
         // handle event onItemClick and onClickFavourite
-        mAdapterMovies?.setOnItemClickListener(object : AdapterMovies.ClickListener {
+        mAdapterMovies.setOnItemClickListener(object : AdapterMovies.ClickListener {
             override fun onItemClick(position: Int, v: View, model: ModelMovie?) {
                 val intent = Intent(activity, ActivityMovieDetail::class.java)
                 val bundle = Bundle()
@@ -91,15 +91,15 @@ class FragmentFavourite : Fragment() {
     }
 
     private fun onRefresh() {
-        mView?.srlMovieList?.isRefreshing = true
+        mView.srlMovieList?.isRefreshing = true
         mMovieList.clear()
         mViewMovieList?.onSwipeToRefreshFavourite()
     }
 
     fun showFavouriteMovies(listMovie: ArrayList<ModelMovie>) {
         mMovieList.addAll(listMovie)
-        mView?.srlMovieList?.isRefreshing = false
-        mAdapterMovies?.notifyDataSetChanged()
+        mView.srlMovieList?.isRefreshing = false
+        mAdapterMovies.notifyDataSetChanged()
         mAllowedToRequest = true
         mLastIndex++
     }
@@ -108,7 +108,7 @@ class FragmentFavourite : Fragment() {
         for (i in 0 until mMovieList.size) {
             if (mMovieList[i].id == movieId) {
                 mMovieList[i].isFavourite = isFavourite
-                mAdapterMovies?.notifyItemChanged(i)
+                mAdapterMovies.notifyItemChanged(i)
                 break
             }
         }
@@ -123,8 +123,8 @@ class FragmentFavourite : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK){
-            if (requestCode == Constants.REQUEST_CODE_DETAIL){
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == Constants.REQUEST_CODE_DETAIL) {
                 val movieId = data?.extras?.getInt(Constants.TAG_MOVIE_ID)
                 val isFavourite = data?.extras?.getBoolean(Constants.TAG_IS_FAVOURITE)
                 mViewMovieList?.setFavouriteIcon(movieId, isFavourite)

@@ -1,11 +1,13 @@
 package com.movies.app.movieList
 
 import android.os.Bundle
+import android.os.Handler
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.view.ViewPager
+import android.widget.Toast
 import com.movies.app.R
 import com.movies.app.model.ModelGenre
 import com.movies.app.model.ModelMovie
@@ -17,9 +19,10 @@ class ActivityMovieList : BaseMvpActivity<ContractMovieList.View,
         ContractMovieList.Presenter>(), ContractMovieList.View {
 
     override var mPresenter: ContractMovieList.Presenter = PresenterMovieList()
-    private var mVpAdapter: ViewPagerAdapter? = null
+    private lateinit var mVpAdapter: ViewPagerAdapter
     private var mListGenre = ArrayList<ModelGenre>()
     private var mListFavouriteID = ArrayList<Int>()
+    private var isExitApp = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,9 +33,9 @@ class ActivityMovieList : BaseMvpActivity<ContractMovieList.View,
 
     private fun setupViewPager(viewPager: ViewPager) {
         mVpAdapter = ViewPagerAdapter(supportFragmentManager)
-        mVpAdapter?.addFragment(FragmentPopular(), getString(R.string.popular))
-        mVpAdapter?.addFragment(FragmentTopRated(), getString(R.string.top_rated))
-        mVpAdapter?.addFragment(FragmentFavourite(), getString(R.string.favourite))
+        mVpAdapter.addFragment(FragmentPopular(), getString(R.string.popular))
+        mVpAdapter.addFragment(FragmentTopRated(), getString(R.string.top_rated))
+        mVpAdapter.addFragment(FragmentFavourite(), getString(R.string.favourite))
         viewPager.offscreenPageLimit = 3
         viewPager.adapter = mVpAdapter
     }
@@ -85,9 +88,9 @@ class ActivityMovieList : BaseMvpActivity<ContractMovieList.View,
 
     override fun setFavouriteIcon(movieId: Int?, isFavourite: Boolean?) {
         mPresenter.loadListFavouriteID()
-        (mVpAdapter?.getItem(0) as FragmentPopular).setFavouriteIcon(movieId, isFavourite)
-        (mVpAdapter?.getItem(1) as FragmentTopRated).setFavouriteIcon(movieId, isFavourite)
-        (mVpAdapter?.getItem(2) as FragmentFavourite).setFavouriteIcon(movieId, isFavourite)
+        (mVpAdapter.getItem(0) as FragmentPopular).setFavouriteIcon(movieId, isFavourite)
+        (mVpAdapter.getItem(1) as FragmentTopRated).setFavouriteIcon(movieId, isFavourite)
+        (mVpAdapter.getItem(2) as FragmentFavourite).setFavouriteIcon(movieId, isFavourite)
     }
 
     override fun setListGenre(listGenre: ArrayList<ModelGenre>) {
@@ -101,16 +104,16 @@ class ActivityMovieList : BaseMvpActivity<ContractMovieList.View,
     }
 
     override fun showPopularMovies(listMovie: ArrayList<ModelMovie>) {
-        (mVpAdapter?.getItem(0) as FragmentPopular).showPopularMovies(listMovie)
+        (mVpAdapter.getItem(0) as FragmentPopular).showPopularMovies(listMovie)
     }
 
 
     override fun showTopRatedMovies(listMovie: ArrayList<ModelMovie>) {
-        (mVpAdapter?.getItem(1) as FragmentTopRated).showTopRatedMovies(listMovie)
+        (mVpAdapter.getItem(1) as FragmentTopRated).showTopRatedMovies(listMovie)
     }
 
     override fun showFavouriteMovies(listMovie: ArrayList<ModelMovie>) {
-        (mVpAdapter?.getItem(2) as FragmentFavourite).showFavouriteMovies(listMovie)
+        (mVpAdapter.getItem(2) as FragmentFavourite).showFavouriteMovies(listMovie)
     }
 
     // Error
@@ -118,5 +121,18 @@ class ActivityMovieList : BaseMvpActivity<ContractMovieList.View,
         Snackbar.make(vpMovieList,
                 error.toString(),
                 Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onBackPressed() {
+        if (isExitApp) {
+            super.onBackPressed()
+        } else {
+            Toast.makeText(this, "please click once again to exit",
+                    Toast.LENGTH_SHORT).show()
+            isExitApp = true
+            Handler().postDelayed(Runnable {
+                isExitApp = false
+            }, 3000)
+        }
     }
 }
