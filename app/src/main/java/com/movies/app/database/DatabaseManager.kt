@@ -1,13 +1,12 @@
 package com.movies.app.database
 
 import android.content.ContentValues
-import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.movies.app.App
 import com.movies.app.util.AppLog
 
-class DatabaseManager(context: Context?) :
-        SQLiteOpenHelper(context, "db_movie_app", null, 1) {
+class DatabaseManager : SQLiteOpenHelper(App.getContext(), "db_movie_app", null, 1) {
 
     private val T_FAVOURITE = "t_favourite"
 
@@ -21,8 +20,7 @@ class DatabaseManager(context: Context?) :
 
     fun addFavourite(id: Int?, jsonData: String) {
         val db = writableDatabase
-        var contentValues: ContentValues? = null
-        contentValues = ContentValues()
+        var contentValues = ContentValues()
         contentValues.put("id", id)
         contentValues.put("json_data", jsonData)
         db.insert(T_FAVOURITE, null, contentValues)

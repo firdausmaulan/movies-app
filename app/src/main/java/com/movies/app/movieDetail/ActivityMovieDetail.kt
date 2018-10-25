@@ -12,12 +12,11 @@ import com.movies.app.R
 import com.movies.app.model.ModelDetailMovie
 import com.movies.app.model.ModelTrailer
 import com.movies.app.mvp.BaseMvpActivity
-import com.movies.app.util.loadImage
 import kotlinx.android.synthetic.main.activity_movie_detail.*
 import android.support.design.widget.AppBarLayout
 import com.movies.app.model.ModelMovie
 import com.movies.app.util.Constants
-
+import com.movies.app.util.ImageUtil
 
 class ActivityMovieDetail : BaseMvpActivity<ContractMovieDetail.View,
         ContractMovieDetail.Presenter>(), ContractMovieDetail.View {
@@ -56,8 +55,8 @@ class ActivityMovieDetail : BaseMvpActivity<ContractMovieDetail.View,
     }
 
     override fun showMovieDetail(movie: ModelDetailMovie?) {
-        loadImage(ivBackdrop, movie?.backdropPath)
-        loadImage(ivPoster, movie?.posterPath)
+        ImageUtil.loadImage(ivBackdrop, movie?.backdropPath)
+        ImageUtil.loadImage(ivPoster, movie?.posterPath)
         tvTitle.text = movie?.title
         tvRating.text = "${movie?.voteAverage}/10"
         tvVotes.text = "${movie?.voteCount} ${getString(R.string.votes)}"

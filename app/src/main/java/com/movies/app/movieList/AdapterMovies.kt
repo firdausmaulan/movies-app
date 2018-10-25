@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.movies.app.R
 import com.movies.app.model.ModelMovie
-import com.movies.app.util.loadImage
+import com.movies.app.util.ImageUtil
 import kotlinx.android.synthetic.main.adapter_movie_list.view.*
 
 class AdapterMovies(val context: Context?,
@@ -22,7 +22,7 @@ class AdapterMovies(val context: Context?,
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        context?.loadImage(holder.ivMovie, mMovieList[position].posterPath)
+        ImageUtil.loadImage(holder.ivMovie, mMovieList[position].posterPath)
         holder.tvTitle?.text = mMovieList[position].title
         holder.tvTitle?.isSelected = true
         holder.tvGenre?.text = mMovieList[position].genres.toString()

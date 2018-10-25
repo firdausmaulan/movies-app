@@ -11,14 +11,14 @@ import com.movies.app.database.DatabaseManager
 import com.movies.app.model.ModelGenre
 import com.movies.app.model.ModelMovie
 import com.movies.app.mvp.BaseMvpPresenterImpl
-import com.movies.app.util.API_URL
+import com.movies.app.util.ApiURL
 import org.json.JSONObject
 
 class PresenterMovieList : BaseMvpPresenterImpl<ContractMovieList.View>(),
         ContractMovieList.Presenter {
 
     override fun loadGenre() {
-        AndroidNetworking.get(API_URL.GENRES)
+        AndroidNetworking.get(ApiURL.GENRES)
                 .addQueryParameter("api_key", BuildConfig.API_KEY)
                 .build()
                 .getAsJSONObject(object : JSONObjectRequestListener {
@@ -43,7 +43,7 @@ class PresenterMovieList : BaseMvpPresenterImpl<ContractMovieList.View>(),
     override fun loadPopularMovies(listGenre: ArrayList<ModelGenre>,
                                    listFavourite: ArrayList<Int>,
                                    lastIndex: Int?) {
-        AndroidNetworking.get(API_URL.POPULAR_MOVIES)
+        AndroidNetworking.get(ApiURL.POPULAR_MOVIES)
                 .addQueryParameter("api_key", BuildConfig.API_KEY)
                 .addQueryParameter("page", lastIndex.toString())
                 .build()
@@ -51,7 +51,9 @@ class PresenterMovieList : BaseMvpPresenterImpl<ContractMovieList.View>(),
                     override fun onResponse(response: JSONObject) {
                         if (response.has("results")) {
                             mView?.showPopularMovies(formatMovieList(
-                                    response.getJSONArray("results").toString(), listGenre, listFavourite)
+                                    response.getJSONArray("results").toString(),
+                                    listGenre,
+                                    listFavourite)
                             )
                         } else if (response.has("errors")) {
                             mView?.showError(response.getJSONArray("errors").getString(0))
@@ -69,7 +71,7 @@ class PresenterMovieList : BaseMvpPresenterImpl<ContractMovieList.View>(),
     override fun loadTopRatedMovies(listGenre: ArrayList<ModelGenre>,
                                     listFavourite: ArrayList<Int>,
                                     lastIndex: Int?) {
-        AndroidNetworking.get(API_URL.TOP_RATED)
+        AndroidNetworking.get(ApiURL.TOP_RATED)
                 .addQueryParameter("api_key", BuildConfig.API_KEY)
                 .addQueryParameter("page", lastIndex.toString())
                 .build()
@@ -77,7 +79,9 @@ class PresenterMovieList : BaseMvpPresenterImpl<ContractMovieList.View>(),
                     override fun onResponse(response: JSONObject) {
                         if (response.has("results")) {
                             mView?.showTopRatedMovies(formatMovieList(
-                                    response.getJSONArray("results").toString(), listGenre, listFavourite)
+                                    response.getJSONArray("results").toString(),
+                                    listGenre,
+                                    listFavourite)
                             )
                         } else if (response.has("errors")) {
                             mView?.showError(response.getJSONArray("errors").getString(0))
@@ -94,9 +98,8 @@ class PresenterMovieList : BaseMvpPresenterImpl<ContractMovieList.View>(),
 
     override fun loadFavouriteMovies(listGenre: ArrayList<ModelGenre>,
                                      listFavourite: ArrayList<Int>) {
-        val mDatabaseManager = DatabaseManager(mView?.getContext())
         mView?.showFavouriteMovies(formatMovieList(
-                mDatabaseManager.getJsonFavourite(), listGenre, listFavourite
+                DatabaseManager().getJsonFavourite(), listGenre, listFavourite
         ))
     }
 
@@ -133,17 +136,15 @@ class PresenterMovieList : BaseMvpPresenterImpl<ContractMovieList.View>(),
     }
 
     override fun loadListFavouriteID() {
-        val mDatabaseManager = DatabaseManager(mView?.getContext())
-        mView?.setListFavouritesID(mDatabaseManager.getListFavouriteID())
+        mView?.setListFavouritesID(DatabaseManager().getListFavouriteID())
     }
 
     override fun setFavouriteMovie(model: ModelMovie?) {
-        val mDatabaseManager = DatabaseManager(mView?.getContext())
-        val isFavourite = mDatabaseManager.isFavourite(model?.id)
+        val isFavourite = DatabaseManager().isFavourite(model?.id)
         if (isFavourite) {
-            mDatabaseManager.removeFavourite(model?.id)
+            DatabaseManager().removeFavourite(model?.id)
         } else {
-            mDatabaseManager.addFavourite(model?.id, Gson().toJson(model).toString())
+            DatabaseManager().addFavourite(model?.id, Gson().toJson(model).toString())
         }
         mView?.setFavouriteIcon(model?.id, !isFavourite)
     }
